@@ -1,63 +1,81 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import { Button, Form } from "react-bootstrap"
+import styled from "styled-components";
+
+const InputWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  padding: 12px;
+`;
+
+const TodoElement= styled.li`
+  cursor: pointer;
+`
 
 
-
-const TodoApp=()=>{
-  const [todoInput, setTodoInput] = useState("")
-  const [todos, setTodos] = useState([])
-
-// Input değişikliklerini takip eden fonksiyon
-  const handleInputChange = (e)=>{
-    setTodoInput(e.target.value)
-  };
-
-   // "Ekle" butonuna tıklanınca çalışan fonksiyon
-  const handleAddTodo = ()=>{
-    setTodos([...todos, todoInput]);
-    setTodoInput("");
-  }
-
-   // Yeni bir fonksiyon oluşturulması 
-   const addTodo = () => {
-    setTodos([...todos, todoInput]);
-    setTodoInput("");
-  };
-
-  // useEffect hook'u ile todos state'ini konsola yazdırma
-  useEffect(() => {
-    
-  }, [todos]);
+function App() {
+  const [todoInput, setTodoInput] = useState("");
+  const [todos, setTodos] = useState([]);
   
-   // Adım 7: "ul" ve "li" elementleri oluşturulması
-   const todoList = todos.map((todo, index) => (
-    <li key={index} onClick={() => handleRemoveTodo(index)}>{todo}</li>
-  ));
-
-  // Adım 11: Liste elemanına hover efekti eklenmesi
-  const handleRemoveTodo = (index) => {
-    const newTodos = [...todos];
-    newTodos.splice(index, 1);
-    setTodos(newTodos);
+   // enter yapınca inputun içindeki yazının eklenmesi
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Bu, sayfanın yeniden yüklenmesini önlemek için kullanılabilir.
+      addTodo();
+    }
   };
-
+  // enter yapınca inputun içindeki yazının eklenmesi
+  const addTodo = () => {
+    if (todos.includes(todoInput) || todoInput.trim() === "") {
+      return;
+    }
+    setTodos([...todos, todoInput]);
+    setTodoInput("");
+  };
   return (
-    <div>
-      <label htmlFor="todoInput">Hedef</label>
-      <input
-        type="text"
-        id="todoInput"
+    <>
+   <div>
+   <InputWrapper>
+      <Form style={{
+        flex:1
+      }}>
+      <Form.Group className="" controlId="exampleForm.ControlInput1">
+        <Form.Label>Hedef</Form.Label>
+        <Form.Control
         value={todoInput}
-        onChange={handleInputChange}
-      />
-      {/* Adım 8: addTodo fonksiyonu Ekle butonuna tıklandığında çalışacak */}
-      <button onClick={addTodo}>Ekle</button>
-      
-      {/* Adım 7: todos array'ini map ederek li elementleri oluşturulması */}
-      <ul>
-        {todoList}
-      </ul>
-    </div>
-  );
-};
+        onChange={(e) =>{
+          setTodoInput(e.target.value);
+        }} 
+        onKeyDown={handleKeyDown}
+        type="text" placeholder="Lüffen Bilgileri Giriniz" />
+      </Form.Group>
+    </Form>
+    <Button
+      onClick={()=>{
+        if(todos.includes(todoInput)){
+          return;
+        }
+        setTodos([...todos, todoInput])
+        setTodoInput("")
+      }}
+     variant="success">Ekle</Button>{' '}
+    </InputWrapper>
+    <ul>
+      {todos.map((todo, index) => 
+      <TodoElement
+        onClick={()=>{
+          setTodos((oldValues)=>{
+            return oldValues.filter((oldTodo)=>oldTodo!==todo);
+          });
+        }}
+       key={index}>{todo}
+       </TodoElement>)}
+    </ul>
+   </div>
+    </>
+  )
+}
 
-export default TodoApp
+export default App
